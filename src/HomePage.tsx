@@ -19,7 +19,8 @@ export const HomePage = () => {
       setQuestionsLoading(false);
     };
     doGetUnansweredQuestions();
-  });
+  }, []);
+
   const handleAskQuestionClick = () => {
     console.log('TODO - move to the AskPage');
   };
