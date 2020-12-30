@@ -12,7 +12,6 @@ interface Props {
 }
 
 export const QuestionList: FC<Props> = ({ data, renderItem }) => {
-  console.log('Rendering QuestionList', data, renderItem);
   return (
     <ul
       css={css`
