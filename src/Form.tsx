@@ -9,17 +9,45 @@ export interface Values {
   [key: string]: any;
 }
 
+export interface Errors {
+  [key: string]: string[];
+}
+
+export interface Touched {
+  [key: string]: boolean;
+}
+
 interface FormContextProps {
   values: Values;
   setValue?: (fieldName: string, value: any) => void;
+  errors: Errors;
+  validate?: (fieldName: string) => void;
+  touched: Touched;
+  setTouched?: (fieldName: string) => void;
+}
+
+interface Validation {
+  validator: Validator;
+  arg?: any;
+}
+
+interface ValidationProp {
+  [key: string]: Validation | Validation[];
 }
 
 interface Props {
   submitCaption?: string;
+  validationRules?: ValidationProp;
 }
 
-export const Form: FC<Props> = ({ submitCaption, children }) => {
+export const Form: FC<Props> = ({
+  submitCaption,
+  children,
+  validationRules,
+}) => {
   const [values, setValues] = useState<Values>({});
+  const [errors, setErrors] = useState<Errors>({});
+  const [touched, setTouched] = useState<Touched>({});
   return (
     <FormContext.Provider
       value={{
@@ -29,7 +57,12 @@ export const Form: FC<Props> = ({ submitCaption, children }) => {
         },
       }}
     >
-      <form noValidate={true}>
+      <Form
+        validationRules={{
+          title: [{ validator: required }, { validator: minLength, arg: 10 }],
+          content: [{ validator: required }, { validator: minLength, arg: 50 }],
+        }}
+      >
         <fieldset
           css={css`
             margin: 10px auto 0 auto;
@@ -52,11 +85,25 @@ export const Form: FC<Props> = ({ submitCaption, children }) => {
             <PrimaryButton type="submit">{submitCaption}</PrimaryButton>
           </div>
         </fieldset>
-      </form>
+      </Form>
     </FormContext.Provider>
   );
 };
 
 export const FormContext = createContext<FormContextProps>({
   values: {},
+  errors: {},
+  touched: {},
 });
+
+type Validator = (value: any, args?: any) => string;
+
+export const required: Validator = (value: any): string =>
+  value === undefined || value === null || value === ''
+    ? 'This must be populated'
+    : '';
+
+export const minLength: Validator = (value: any, length: number): string =>
+  value && value.length < length
+    ? 'This must be at least ${length} characters'
+    : '';
