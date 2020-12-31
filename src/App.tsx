@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Header } from './Header';
+//import { Header } from './Header';
 import { HomePage } from './HomePage';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import { SearchPage } from './SearchPage';
@@ -10,6 +10,8 @@ import { css, jsx } from '@emotion/react';
 import { fontFamily, fontSize, gray2 } from './Styles';
 import { NotFoundPage } from './NotFoundPage';
 import { QuestionPage } from './QuestionPage';
+import { HeaderWithRouter as Header } from './Header';
+
 const AskPage = lazy(() => import('./AskPage'));
 
 const App: React.FC = () => {
