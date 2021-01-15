@@ -1,3 +1,5 @@
+import { http } from './http';
+
 export interface QuestionData {
   questionId: number;
   title: string;
@@ -34,11 +36,13 @@ export const mapQuestionFromServer = (
   question: QuestionDataFromServer,
 ): QuestionData => ({
   ...question,
-  created: new Date(question.created.substr(0, 19)),
-  answers: question.answers.map((answer) => ({
-    ...answer,
-    created: new Date(answer.created.substr(0, 19)),
-  })),
+  created: new Date(question.created),
+  answers: question.answers
+    ? question.answers.map((answer) => ({
+        ...answer,
+        created: new Date(answer.created),
+      }))
+    : [],
 });
 const questions: QuestionData[] = [
   {
@@ -76,21 +80,19 @@ const questions: QuestionData[] = [
 ];
 
 export const getUnansweredQuestions = async (): Promise<QuestionData[]> => {
-  let unansweredQuestions: QuestionData[] = [];
-
-  await fetch('https://localhost:44381/api/questions/unanswered')
-    .then((res) => res.json())
-    .then((body) => {
-      unansweredQuestions = body;
-    })
-    .catch((err) => {
-      console.error(err);
+  try {
+    const result = await http<undefined, QuestionDataFromServer[]>({
+      path: '/questions/unanswered',
     });
-
-  return unansweredQuestions.map((question) => ({
-    ...question,
-    created: new Date(question.created),
-  }));
+    if (result.parsedBody) {
+      return result.parsedBody.map(mapQuestionFromServer);
+    } else {
+      return [];
+    }
+  } catch (ex) {
+    console.error(ex);
+    return [];
+  }
 };
 
 const wait = (ms: number): Promise<void> => {
