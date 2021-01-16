@@ -8,31 +8,31 @@ import { useEffect, useState, FC } from 'react';
 import { css, jsx } from '@emotion/react';
 import { PrimaryButton } from './Styles';
 import { QuestionList } from './QuestionList';
-import { QuestionData } from './QuestionsData';
 import { Page } from './Page';
 import { PageTitle } from './PageTitle';
 import { RouteComponentProps } from 'react-router-dom';
 import { AppState, getUnansweredQuestionsActionCreator } from './Store';
 import { useAuth } from './Auth';
+import { getUnansweredQuestions, QuestionData } from './QuestionsData';
 
-interface Props extends RouteComponentProps {
-  getUnansweredQuestions: () => Promise<void>;
-  questions: QuestionData[] | null;
-  questionsLoading: boolean;
-}
+export const HomePage: FC<RouteComponentProps> = ({ history }) => {
+  const [questions, setQuestions] = useState<QuestionData[] | null>(null);
+  const [questionsLoading, setQuestionsLoading] = useState(true);
 
-export const HomePage: FC<Props> = ({
-  history,
-  questions,
-  questionsLoading,
-  getUnansweredQuestions,
-}) => {
   useEffect(() => {
-    if (questions === null) {
-      getUnansweredQuestions();
-    }
-  }, [questions, getUnansweredQuestions]);
-
+    let cancelled = false;
+    const doGetUnansweredQuestions = async () => {
+      const unansweredQuestions = await getUnansweredQuestions();
+      if (!cancelled) {
+        setQuestions(unansweredQuestions);
+        setQuestionsLoading(false);
+      }
+    };
+    doGetUnansweredQuestions();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const handleAskQuestionClick = () => {
     history.push('/ask');
   };
