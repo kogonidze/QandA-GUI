@@ -13,6 +13,7 @@ import { Page } from './Page';
 import { PageTitle } from './PageTitle';
 import { RouteComponentProps } from 'react-router-dom';
 import { AppState, getUnansweredQuestionsActionCreator } from './Store';
+import { useAuth } from './Auth';
 
 interface Props extends RouteComponentProps {
   getUnansweredQuestions: () => Promise<void>;
@@ -20,7 +21,7 @@ interface Props extends RouteComponentProps {
   questionsLoading: boolean;
 }
 
-const HomePage: FC<Props> = ({
+export const HomePage: FC<Props> = ({
   history,
   questions,
   questionsLoading,
@@ -35,6 +36,8 @@ const HomePage: FC<Props> = ({
   const handleAskQuestionClick = () => {
     history.push('/ask');
   };
+  const { isAuthenticated } = useAuth();
+
   return (
     <Page>
       <div
@@ -52,9 +55,11 @@ const HomePage: FC<Props> = ({
           `}
         >
           <PageTitle>Unanswered Questions </PageTitle>
-          <PrimaryButton onClick={handleAskQuestionClick}>
-            Ask a question
-          </PrimaryButton>
+          {isAuthenticated && (
+            <PrimaryButton onClick={handleAskQuestionClick}>
+              Ask a question
+            </PrimaryButton>
+          )}
         </div>
         {questionsLoading ? (
           <div

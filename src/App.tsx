@@ -15,6 +15,7 @@ import { NotFoundPage } from './NotFoundPage';
 import { QuestionPage } from './QuestionPage';
 import { HeaderWithRouter as Header } from './Header';
 import { AuthProvider } from './Auth';
+import { AuthorizedPage } from './AuthorizedPage';
 
 const AskPage = lazy(() => import('./AskPage'));
 
@@ -50,7 +51,9 @@ const App: React.FC = () => {
                     </div>
                   }
                 >
-                  <AskPage />
+                  <AuthorizedPage>
+                    <AskPage />
+                  </AuthorizedPage>
                 </Suspense>
               </Route>
               <Route
