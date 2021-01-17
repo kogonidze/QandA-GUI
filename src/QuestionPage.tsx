@@ -23,6 +23,7 @@ import { css, jsx } from '@emotion/react';
 import { gray2, gray3, gray6 } from './Styles';
 import { AnswerList } from './AnswerList';
 import { connect } from 'react-redux';
+import { useAuth } from './Auth';
 
 interface RouteParams {
   questionId: string;
@@ -32,9 +33,10 @@ export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
   match,
 }) => {
   const [question, setQuestion] = useState<QuestionData | null>(null);
+
   const setUpSignalRConnection = async (questionId: number) => {
     const connection = new HubConnectionBuilder()
-      .withUrl('http://localhost:54089/questionshub')
+      .withUrl('http://localhost:44381/questionshub')
       .withAutomaticReconnect()
       .build();
 
@@ -83,9 +85,12 @@ export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
   };
 
   useEffect(() => {
+    let cancelled = false;
     const doGetQuestion = async (questionId: number) => {
       const foundQuestion = await getQuestion(questionId);
-      setQuestion(foundQuestion);
+      if (!cancelled) {
+        setQuestion(foundQuestion);
+      }
     };
     let connection: HubConnection;
 
@@ -98,6 +103,7 @@ export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
     }
 
     return function cleanUp() {
+      cancelled = true;
       if (match.params.questionId) {
         const questionId = Number(match.params.questionId);
         cleanUpSignalRConnection(questionId, connection);
@@ -115,7 +121,7 @@ export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
 
     return { success: result ? true : false };
   };
-
+  const { isAuthenticated } = useAuth();
   return (
     <Page>
       <div
@@ -158,26 +164,28 @@ export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
                 ${question.created.toLocaleTimeString()}`}
             </div>
             <AnswerList data={question.answers} />
-            <div
-              css={css`
-                margin-top: 20px;
-              `}
-            >
-              <Form
-                submitCaption="Submit Your Answer"
-                validationRules={{
-                  content: [
-                    { validator: required },
-                    { validator: minLength, arg: 50 },
-                  ],
-                }}
-                onSubmit={handleSubmit}
-                failureMessage="There was a problem with your answer"
-                successMessage="Your answer was successfully submitted"
+            {isAuthenticated && (
+              <div
+                css={css`
+                  margin-top: 20px;
+                `}
               >
-                <Field name="content" label="Your Answer" type="TextArea" />
-              </Form>
-            </div>
+                <Form
+                  submitCaption="Submit Your Answer"
+                  validationRules={{
+                    content: [
+                      { validator: required },
+                      { validator: minLength, arg: 50 },
+                    ],
+                  }}
+                  onSubmit={handleSubmit}
+                  failureMessage="There was a problem with your answer"
+                  successMessage="Your answer was successfully submitted"
+                >
+                  <Field name="content" label="Your Answer" type="TextArea" />
+                </Form>
+              </div>
+            )}
           </Fragment>
         )}
       </div>
