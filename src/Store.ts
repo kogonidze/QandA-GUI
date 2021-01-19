@@ -3,6 +3,8 @@ import {
   getUnansweredQuestions,
   postQuestion,
   PostQuestionData,
+  getAllQuestions,
+  getAnsweredQuestions,
 } from './QuestionsData';
 import {
   Action,
@@ -13,8 +15,10 @@ import {
   Store,
   createStore,
   applyMiddleware,
+  compose,
 } from 'redux';
 import thunk, { ThunkAction } from 'redux-thunk';
+import { trace } from 'console';
 
 interface QuestionsState {
   readonly loading: boolean;
@@ -39,6 +43,19 @@ export interface GotUnansweredQuestionsAction
   questions: QuestionData[];
 }
 
+interface GettingAllQuestionsAction extends Action<'GettingAllQuestions'> {}
+
+export interface GotAllQuestionsAction extends Action<'GotAllQuestions'> {
+  questions: QuestionData[];
+}
+
+interface GettingAnsweredQuestionsAction
+  extends Action<'GettingAnsweredQuestions'> {}
+
+export interface GotAnsweredQuestionsAction
+  extends Action<'GotAnsweredQuestions'> {
+  questions: QuestionData[];
+}
 export interface PostedQuestionAction extends Action<'PostedQuestion'> {
   result: QuestionData | undefined;
 }
@@ -46,6 +63,10 @@ export interface PostedQuestionAction extends Action<'PostedQuestion'> {
 type QuestionsActions =
   | GettingUnasnweredQuestionsAction
   | GotUnansweredQuestionsAction
+  | GettingAllQuestionsAction
+  | GotAllQuestionsAction
+  | GettingAnsweredQuestionsAction
+  | GotAnsweredQuestionsAction
   | PostedQuestionAction;
 
 export const getUnansweredQuestionsActionCreator: ActionCreator<
@@ -63,6 +84,42 @@ export const getUnansweredQuestionsActionCreator: ActionCreator<
       type: 'GotUnansweredQuestions',
     };
     dispatch(gotUnansweredQuestionAction);
+  };
+};
+
+export const getAnsweredQuestionsActionCreator: ActionCreator<
+  ThunkAction<Promise<void>, QuestionData[], null, GotAnsweredQuestionsAction>
+> = () => {
+  return async (dispatch: Dispatch) => {
+    const gettingAnsweredQuestionsAction: GettingAnsweredQuestionsAction = {
+      type: 'GettingAnsweredQuestions',
+    };
+    dispatch(gettingAnsweredQuestionsAction);
+    const questions = await getAnsweredQuestions();
+
+    const gotAnsweredQuestionAction: GotAnsweredQuestionsAction = {
+      questions,
+      type: 'GotAnsweredQuestions',
+    };
+    dispatch(gotAnsweredQuestionAction);
+  };
+};
+
+export const getAllQuestionsActionCreator: ActionCreator<
+  ThunkAction<Promise<void>, QuestionData[], null, GotAllQuestionsAction>
+> = () => {
+  return async (dispatch: Dispatch) => {
+    const gettingAllQuestionsAction: GettingAllQuestionsAction = {
+      type: 'GettingAllQuestions',
+    };
+    dispatch(gettingAllQuestionsAction);
+    const questions = await getAllQuestions();
+
+    const gotAllQuestionAction: GotAllQuestionsAction = {
+      questions,
+      type: 'GotAllQuestions',
+    };
+    dispatch(gotAllQuestionAction);
   };
 };
 
@@ -112,6 +169,34 @@ const questionsReducer: Reducer<QuestionsState, QuestionsActions> = (
         loading: false,
       };
     }
+    case 'GettingAllQuestions': {
+      return {
+        ...state,
+        unanswered: null,
+        loading: true,
+      };
+    }
+    case 'GotAllQuestions': {
+      return {
+        ...state,
+        unanswered: action.questions,
+        loading: false,
+      };
+    }
+    case 'GettingAnsweredQuestions': {
+      return {
+        ...state,
+        unanswered: null,
+        loading: true,
+      };
+    }
+    case 'GotAnsweredQuestions': {
+      return {
+        ...state,
+        unanswered: action.questions,
+        loading: false,
+      };
+    }
     case 'PostedQuestion': {
       return {
         ...state,
@@ -134,6 +219,14 @@ const rootReducer = combineReducers<AppState>({
 });
 
 export function configureStore(): Store<AppState> {
-  const store = createStore(rootReducer, undefined, applyMiddleware(thunk));
+  const store = createStore(
+    rootReducer,
+    undefined,
+    compose(
+      applyMiddleware(thunk),
+      (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
+        (window as any).__REDUX_DEVTOOLS_EXTENSION__({ trace: true }),
+    ),
+  );
   return store;
 }

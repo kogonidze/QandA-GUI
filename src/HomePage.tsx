@@ -11,7 +11,12 @@ import { QuestionList } from './QuestionList';
 import { Page } from './Page';
 import { PageTitle } from './PageTitle';
 import { RouteComponentProps } from 'react-router-dom';
-import { AppState, getUnansweredQuestionsActionCreator } from './Store';
+import {
+  AppState,
+  getUnansweredQuestionsActionCreator,
+  getAllQuestionsActionCreator,
+  getAnsweredQuestionsActionCreator,
+} from './Store';
 import { useAuth } from './Auth';
 import {
   getUnansweredQuestions,
@@ -21,41 +26,34 @@ import {
 } from './QuestionsData';
 import { idText } from 'typescript';
 
-export const HomePage: FC<RouteComponentProps> = ({ history }) => {
-  const [questions, setQuestions] = useState<QuestionData[] | null>(null);
-  const [questionsLoading, setQuestionsLoading] = useState(true);
+interface Props extends RouteComponentProps {
+  getUnansweredQuestions: () => Promise<void>;
+  questions: QuestionData[] | null;
+  questionsLoading: boolean;
+  getAllQuestions: () => Promise<void>;
+  getAnsweredQuestions: () => Promise<void>;
+}
+
+export const HomePage: FC<Props> = ({
+  history,
+  questions,
+  questionsLoading,
+  getUnansweredQuestions,
+  getAllQuestions,
+  getAnsweredQuestions,
+}) => {
   const [filterQuestionsMode, setFilterQuestionsMode] = useState('Unanswered');
 
   useEffect(() => {
-    let cancelled = false;
-    const doGetQuestions = async () => {
-      if (filterQuestionsMode === 'Unanswered') {
-        const unansweredQuestions = await getUnansweredQuestions();
-        if (!cancelled) {
-          setQuestions(unansweredQuestions);
-          setQuestionsLoading(false);
-        }
-      }
-      if (filterQuestionsMode === 'Answered') {
-        const answeredQuestions = await getAnsweredQuestions();
-        if (!cancelled) {
-          setQuestions(answeredQuestions);
-          setQuestionsLoading(false);
-        }
-      }
-      if (filterQuestionsMode === 'All') {
-        const allQuestions = await getAllQuestions();
-        if (!cancelled) {
-          setQuestions(allQuestions);
-          setQuestionsLoading(false);
-        }
-      }
-    };
-
-    doGetQuestions();
-    return () => {
-      cancelled = true;
-    };
+    if (questions == null || filterQuestionsMode === 'Unanswered') {
+      getUnansweredQuestions();
+    }
+    if (filterQuestionsMode === 'Answered') {
+      getAnsweredQuestions();
+    }
+    if (filterQuestionsMode === 'All') {
+      getAllQuestions();
+    }
   }, [filterQuestionsMode]);
 
   const handleAskQuestionClick = () => {
@@ -147,6 +145,8 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => {
   return {
     getUnansweredQuestions: () =>
       dispatch(getUnansweredQuestionsActionCreator()),
+    getAllQuestions: () => dispatch(getAllQuestionsActionCreator()),
+    getAnsweredQuestions: () => dispatch(getAnsweredQuestionsActionCreator()),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
