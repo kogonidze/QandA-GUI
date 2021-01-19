@@ -86,6 +86,7 @@ export const HomePage: FC<RouteComponentProps> = ({ history }) => {
               value="Unanswered"
               name="FilterQuestions"
               onClick={() => setFilterQuestionsMode('Unanswered')}
+              defaultChecked
             />
             <input
               type="radio"
