@@ -62,6 +62,38 @@ export const getUnansweredQuestions = async (): Promise<QuestionData[]> => {
   }
 };
 
+export const getAllQuestions = async (): Promise<QuestionData[]> => {
+  try {
+    const result = await http<undefined, QuestionDataFromServer[]>({
+      path: '/questions/all',
+    });
+    if (result.parsedBody) {
+      return result.parsedBody.map(mapQuestionFromServer);
+    } else {
+      return [];
+    }
+  } catch (ex) {
+    console.error(ex);
+    return [];
+  }
+};
+
+export const getAnsweredQuestions = async (): Promise<QuestionData[]> => {
+  try {
+    const result = await http<undefined, QuestionDataFromServer[]>({
+      path: '/questions/answered',
+    });
+    if (result.parsedBody) {
+      return result.parsedBody.map(mapQuestionFromServer);
+    } else {
+      return [];
+    }
+  } catch (ex) {
+    console.error(ex);
+    return [];
+  }
+};
+
 export const getQuestion = async (
   questionId: number,
 ): Promise<QuestionData | null> => {
