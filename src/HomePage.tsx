@@ -24,7 +24,8 @@ import {
   getAllQuestions,
   QuestionData,
 } from './QuestionsData';
-import { idText } from 'typescript';
+import arrowDown from './arrowDown.png';
+import arrowUp from './arrowUp.png';
 
 interface Props extends RouteComponentProps {
   getUnansweredQuestions: () => Promise<void>;
@@ -43,6 +44,9 @@ export const HomePage: FC<Props> = ({
   getAnsweredQuestions,
 }) => {
   const [filterQuestionsMode, setFilterQuestionsMode] = useState('Unanswered');
+  const [sortingQuestionsMode, setSortingQuestionsMode] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (questions == null || filterQuestionsMode === 'Unanswered') {
@@ -59,7 +63,25 @@ export const HomePage: FC<Props> = ({
   const handleAskQuestionClick = () => {
     history.push('/ask');
   };
+  const handleClickOnSortingByDescTimeBtn = () => {
+    questions?.sort(function (a, b) {
+      if (a.title > b.title) {
+        return 1;
+      }
+      if (a.title < b.title) {
+        return -1;
+      }
+      // a должно быть равным b
+      return 0;
+    });
+  };
+  const handleClickOnSortingByAscTimeBtn = () => {
+    questions?.sort(function (a, b) {
+      return b.created.getDate() - a.created.getDate();
+    });
 
+    return questions;
+  };
   const { isAuthenticated } = useAuth();
 
   return (
@@ -78,6 +100,25 @@ export const HomePage: FC<Props> = ({
             justify-content: space-between;
           `}
         >
+          {filterQuestionsMode === 'All' && (
+            <PageTitle> All Questions </PageTitle>
+          )}
+
+          {filterQuestionsMode === 'Answered' && (
+            <PageTitle> Answered Questions </PageTitle>
+          )}
+
+          {filterQuestionsMode === 'Unanswered' && (
+            <PageTitle>Unanswered Questions </PageTitle>
+          )}
+
+          {isAuthenticated && (
+            <PrimaryButton onClick={handleAskQuestionClick}>
+              Ask a question
+            </PrimaryButton>
+          )}
+        </div>
+        <div>
           <div>
             <input
               type="radio"
@@ -98,24 +139,13 @@ export const HomePage: FC<Props> = ({
               name="FilterQuestions"
               onClick={() => setFilterQuestionsMode('All')}
             />
+            <button onClick={() => handleClickOnSortingByDescTimeBtn()}>
+              <img src={arrowDown} alt="down arror" width="20" height="20" />
+            </button>
+            <button onClick={() => handleClickOnSortingByAscTimeBtn()}>
+              <img src={arrowUp} alt="down arror" width="20" height="20" />
+            </button>
           </div>
-          {filterQuestionsMode === 'All' && (
-            <PageTitle> All Questions </PageTitle>
-          )}
-
-          {filterQuestionsMode === 'Answered' && (
-            <PageTitle> Answered Questions </PageTitle>
-          )}
-
-          {filterQuestionsMode === 'Unanswered' && (
-            <PageTitle>Unanswered Questions </PageTitle>
-          )}
-
-          {isAuthenticated && (
-            <PrimaryButton onClick={handleAskQuestionClick}>
-              Ask a question
-            </PrimaryButton>
-          )}
         </div>
         {questionsLoading ? (
           <div
