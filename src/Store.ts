@@ -57,8 +57,17 @@ export interface GotAnsweredQuestionsAction
   questions: QuestionData[];
 }
 
+export interface GotSortedQuestionsByNameDescAction
+  extends Action<'GotSortedQuestionsByNameDesc'> {}
+
+export interface GotSortedQuestionsByNameAscAction
+  extends Action<'GotSortedQuestionsByNameAsc'> {}
+
 export interface GotSortedQuestionsByDateDescAction
   extends Action<'GotSortedQuestionsByDateDesc'> {}
+
+export interface GotSortedQuestionsByDateAscAction
+  extends Action<'GotSortedQuestionsByDateAsc'> {}
 
 export interface PostedQuestionAction extends Action<'PostedQuestion'> {
   result: QuestionData | undefined;
@@ -71,17 +80,20 @@ type QuestionsActions =
   | GotAllQuestionsAction
   | GettingAnsweredQuestionsAction
   | GotAnsweredQuestionsAction
+  | GotSortedQuestionsByNameDescAction
+  | GotSortedQuestionsByNameAscAction
   | GotSortedQuestionsByDateDescAction
+  | GotSortedQuestionsByDateAscAction
   | PostedQuestionAction;
 
 export const getUnansweredQuestionsActionCreator: ActionCreator<
   ThunkAction<Promise<void>, QuestionData[], null, GotUnansweredQuestionsAction>
 > = () => {
   return async (dispatch: Dispatch) => {
-    const gettingUnasnweredQuestionsAction: GettingUnasnweredQuestionsAction = {
-      type: 'GettingUnansweredQuestions',
-    };
-    dispatch(gettingUnasnweredQuestionsAction);
+    // const gettingUnasnweredQuestionsAction: GettingUnasnweredQuestionsAction = {
+    //   type: 'GettingUnansweredQuestions',
+    // };
+    // dispatch(gettingUnasnweredQuestionsAction);
     const questions = await getUnansweredQuestions();
 
     const gotUnansweredQuestionAction: GotUnansweredQuestionsAction = {
@@ -96,10 +108,10 @@ export const getAnsweredQuestionsActionCreator: ActionCreator<
   ThunkAction<Promise<void>, QuestionData[], null, GotAnsweredQuestionsAction>
 > = () => {
   return async (dispatch: Dispatch) => {
-    const gettingAnsweredQuestionsAction: GettingAnsweredQuestionsAction = {
-      type: 'GettingAnsweredQuestions',
-    };
-    dispatch(gettingAnsweredQuestionsAction);
+    // const gettingAnsweredQuestionsAction: GettingAnsweredQuestionsAction = {
+    //   type: 'GettingAnsweredQuestions',
+    // };
+    // dispatch(gettingAnsweredQuestionsAction);
     const questions = await getAnsweredQuestions();
 
     const gotAnsweredQuestionAction: GotAnsweredQuestionsAction = {
@@ -114,10 +126,10 @@ export const getAllQuestionsActionCreator: ActionCreator<
   ThunkAction<Promise<void>, QuestionData[], null, GotAllQuestionsAction>
 > = () => {
   return async (dispatch: Dispatch) => {
-    const gettingAllQuestionsAction: GettingAllQuestionsAction = {
-      type: 'GettingAllQuestions',
-    };
-    dispatch(gettingAllQuestionsAction);
+    // const gettingAllQuestionsAction: GettingAllQuestionsAction = {
+    //   type: 'GettingAllQuestions',
+    // };
+    // dispatch(gettingAllQuestionsAction);
     const questions = await getAllQuestions();
 
     const gotAllQuestionAction: GotAllQuestionsAction = {
@@ -128,15 +140,43 @@ export const getAllQuestionsActionCreator: ActionCreator<
   };
 };
 
-export const sortQuestionsByDateDescCreator: ActionCreator<
-  ThunkAction<Promise<void>, QuestionData[], null, GotAllQuestionsAction>
-> = () => {
+export const sortQuestionsByNameDescCreator = () => {
+  return async (dispatch: Dispatch) => {
+    const gotSortedQuestionsByNameDesc: GotSortedQuestionsByNameDescAction = {
+      type: 'GotSortedQuestionsByNameDesc',
+    };
+
+    dispatch(gotSortedQuestionsByNameDesc);
+  };
+};
+
+export const sortQuestionsByNameAscCreator = () => {
+  return async (dispatch: Dispatch) => {
+    const gotSortedQuestionsByNameAsc: GotSortedQuestionsByNameAscAction = {
+      type: 'GotSortedQuestionsByNameAsc',
+    };
+
+    dispatch(gotSortedQuestionsByNameAsc);
+  };
+};
+
+export const sortQuestionsByDateDescCreator = () => {
   return async (dispatch: Dispatch) => {
     const gotSortedQuestionsByDateDesc: GotSortedQuestionsByDateDescAction = {
       type: 'GotSortedQuestionsByDateDesc',
     };
 
     dispatch(gotSortedQuestionsByDateDesc);
+  };
+};
+
+export const sortQuestionsByDateAscCreator = () => {
+  return async (dispatch: Dispatch) => {
+    const gotSortedQuestionsByDateAsc: GotSortedQuestionsByDateAscAction = {
+      type: 'GotSortedQuestionsByDateAsc',
+    };
+
+    dispatch(gotSortedQuestionsByDateAsc);
   };
 };
 
@@ -215,24 +255,91 @@ const questionsReducer: Reducer<QuestionsState, QuestionsActions> = (
       };
     }
 
-    case 'GotSortedQuestionsByDateDesc': {
-      let sortedArr =
-        state.unanswered != null
-          ? state.unanswered.sort(function (a, b) {
-              if (a.title > b.title) {
-                return 1;
-              }
-              if (a.title < b.title) {
-                return -1;
-              }
-              // a должно быть равным b
-              return 0;
-            })
-          : null;
-
+    case 'GotSortedQuestionsByNameAsc': {
       return {
         ...state,
-        unanswered: sortedArr,
+        unanswered:
+          state.unanswered != null
+            ? [
+                ...state.unanswered.sort(function (a, b) {
+                  if (a.title > b.title) {
+                    return 1;
+                  }
+                  if (a.title < b.title) {
+                    return -1;
+                  }
+                  return 0;
+                }),
+              ]
+            : null,
+
+        loading: false,
+      };
+    }
+
+    case 'GotSortedQuestionsByNameDesc': {
+      return {
+        ...state,
+        unanswered:
+          state.unanswered != null
+            ? [
+                ...state.unanswered.sort(function (a, b) {
+                  if (a.title > b.title) {
+                    return -1;
+                  }
+                  if (a.title < b.title) {
+                    return 1;
+                  }
+                  return 0;
+                }),
+              ]
+            : null,
+
+        loading: false,
+      };
+    }
+
+    case 'GotSortedQuestionsByDateDesc': {
+      return {
+        ...state,
+        unanswered:
+          state.unanswered != null
+            ? [
+                ...state.unanswered.sort(function (a, b) {
+                  if (a.created > b.created) {
+                    return -1;
+                  }
+                  if (a.created < b.created) {
+                    return 1;
+                  }
+                  return 0;
+                }),
+              ]
+            : null,
+
+        loading: false,
+      };
+    }
+
+    case 'GotSortedQuestionsByDateAsc': {
+      return {
+        ...state,
+        unanswered:
+          state.unanswered != null
+            ? [
+                ...state.unanswered.sort(function (a, b) {
+                  if (a.created > b.created) {
+                    return 1;
+                  }
+                  if (a.created < b.created) {
+                    return -1;
+                  }
+                  return 0;
+                }),
+              ]
+            : null,
+
+        loading: false,
       };
     }
 

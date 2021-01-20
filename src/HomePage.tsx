@@ -16,7 +16,10 @@ import {
   getUnansweredQuestionsActionCreator,
   getAllQuestionsActionCreator,
   getAnsweredQuestionsActionCreator,
+  sortQuestionsByNameAscCreator,
+  sortQuestionsByNameDescCreator,
   sortQuestionsByDateDescCreator,
+  sortQuestionsByDateAscCreator,
 } from './Store';
 import { useAuth } from './Auth';
 import {
@@ -34,7 +37,10 @@ interface Props extends RouteComponentProps {
   questionsLoading: boolean;
   getAllQuestions: () => Promise<void>;
   getAnsweredQuestions: () => Promise<void>;
+  sortQuestionsByNameDesc: () => Promise<void>;
+  sortQuestionsByNameAsc: () => Promise<void>;
   sortQuestionsByDateDesc: () => Promise<void>;
+  sortQuestionsByDateAsc: () => Promise<void>;
 }
 
 export const HomePage: FC<Props> = ({
@@ -44,19 +50,20 @@ export const HomePage: FC<Props> = ({
   getUnansweredQuestions,
   getAllQuestions,
   getAnsweredQuestions,
+  sortQuestionsByNameDesc,
+  sortQuestionsByNameAsc,
   sortQuestionsByDateDesc,
+  sortQuestionsByDateAsc,
 }) => {
   const [filterQuestionsMode, setFilterQuestionsMode] = useState('Unanswered');
-  const [sortingQuestionsMode, setSortingQuestionsMode] = useState<
-    string | null
-  >(null);
+  const [sortingQuestionsMode, setSortingQuestionsMode] = useState('DESC');
 
   useEffect(() => {
-    if (questions == null || filterQuestionsMode === 'Unanswered') {
+    if (questions == null && filterQuestionsMode === 'Unanswered') {
       getUnansweredQuestions();
     }
-    if (sortingQuestionsMode === 'DESC') {
-      sortQuestionsByDateDesc();
+    if (filterQuestionsMode === 'Unanswered') {
+      getUnansweredQuestions();
     }
 
     if (filterQuestionsMode === 'Answered') {
@@ -65,7 +72,10 @@ export const HomePage: FC<Props> = ({
     if (filterQuestionsMode === 'All') {
       getAllQuestions();
     }
-  }, [filterQuestionsMode, sortingQuestionsMode]);
+    // if (filterQuestionsMode === 'DESC') {
+    //   sortQuestionsByDateDesc();
+    // }
+  }, [filterQuestionsMode]);
 
   const handleAskQuestionClick = () => {
     history.push('/ask');
@@ -147,10 +157,16 @@ export const HomePage: FC<Props> = ({
               name="FilterQuestions"
               onClick={() => setFilterQuestionsMode('All')}
             />
-            <button onClick={() => setSortingQuestionsMode('DESC')}>
+            <button onClick={() => sortQuestionsByNameDesc()}>
               <img src={arrowDown} alt="down arror" width="20" height="20" />
             </button>
-            <button onClick={() => handleClickOnSortingByAscTimeBtn()}>
+            <button onClick={() => sortQuestionsByNameAsc()}>
+              <img src={arrowUp} alt="down arror" width="20" height="20" />
+            </button>
+            <button onClick={() => sortQuestionsByDateDesc()}>
+              <img src={arrowDown} alt="down arror" width="20" height="20" />
+            </button>
+            <button onClick={() => sortQuestionsByDateAsc()}>
               <img src={arrowUp} alt="down arror" width="20" height="20" />
             </button>
           </div>
@@ -185,7 +201,10 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => {
       dispatch(getUnansweredQuestionsActionCreator()),
     getAllQuestions: () => dispatch(getAllQuestionsActionCreator()),
     getAnsweredQuestions: () => dispatch(getAnsweredQuestionsActionCreator()),
+    sortQuestionsByNameDesc: () => dispatch(sortQuestionsByNameDescCreator()),
+    sortQuestionsByNameAsc: () => dispatch(sortQuestionsByNameAscCreator()),
     sortQuestionsByDateDesc: () => dispatch(sortQuestionsByDateDescCreator()),
+    sortQuestionsByDateAsc: () => dispatch(sortQuestionsByDateAscCreator()),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
