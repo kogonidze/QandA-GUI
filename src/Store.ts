@@ -56,6 +56,10 @@ export interface GotAnsweredQuestionsAction
   extends Action<'GotAnsweredQuestions'> {
   questions: QuestionData[];
 }
+
+export interface GotSortedQuestionsByDateDescAction
+  extends Action<'GotSortedQuestionsByDateDesc'> {}
+
 export interface PostedQuestionAction extends Action<'PostedQuestion'> {
   result: QuestionData | undefined;
 }
@@ -67,6 +71,7 @@ type QuestionsActions =
   | GotAllQuestionsAction
   | GettingAnsweredQuestionsAction
   | GotAnsweredQuestionsAction
+  | GotSortedQuestionsByDateDescAction
   | PostedQuestionAction;
 
 export const getUnansweredQuestionsActionCreator: ActionCreator<
@@ -120,6 +125,18 @@ export const getAllQuestionsActionCreator: ActionCreator<
       type: 'GotAllQuestions',
     };
     dispatch(gotAllQuestionAction);
+  };
+};
+
+export const sortQuestionsByDateDescCreator: ActionCreator<
+  ThunkAction<Promise<void>, QuestionData[], null, GotAllQuestionsAction>
+> = () => {
+  return async (dispatch: Dispatch) => {
+    const gotSortedQuestionsByDateDesc: GotSortedQuestionsByDateDescAction = {
+      type: 'GotSortedQuestionsByDateDesc',
+    };
+
+    dispatch(gotSortedQuestionsByDateDesc);
   };
 };
 
@@ -197,6 +214,28 @@ const questionsReducer: Reducer<QuestionsState, QuestionsActions> = (
         loading: false,
       };
     }
+
+    case 'GotSortedQuestionsByDateDesc': {
+      let sortedArr =
+        state.unanswered != null
+          ? state.unanswered.sort(function (a, b) {
+              if (a.title > b.title) {
+                return 1;
+              }
+              if (a.title < b.title) {
+                return -1;
+              }
+              // a должно быть равным b
+              return 0;
+            })
+          : null;
+
+      return {
+        ...state,
+        unanswered: sortedArr,
+      };
+    }
+
     case 'PostedQuestion': {
       return {
         ...state,
@@ -218,15 +257,28 @@ const rootReducer = combineReducers<AppState>({
   questions: questionsReducer,
 });
 
-export function configureStore(): Store<AppState> {
+// export function configureStore(): Store<AppState> {
+//   const store = createStore(
+//     rootReducer,
+//     undefined,
+//     compose(
+//       applyMiddleware(thunk),
+//       (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
+//         (window as any).__REDUX_DEVTOOLS_EXTENSION__({ trace: true }),
+//     ),
+//   );
+//   return store;
+// }
+
+export function configureStore() {
   const store = createStore(
     rootReducer,
-    undefined,
     compose(
       applyMiddleware(thunk),
-      (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
-        (window as any).__REDUX_DEVTOOLS_EXTENSION__({ trace: true }),
+      // window.__REDUX_DEVTOOLS_EXTENSION__ &&
+      //   window.__REDUX_DEVTOOLS_EXTENSION__(),
     ),
   );
+
   return store;
 }

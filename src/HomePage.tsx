@@ -16,6 +16,7 @@ import {
   getUnansweredQuestionsActionCreator,
   getAllQuestionsActionCreator,
   getAnsweredQuestionsActionCreator,
+  sortQuestionsByDateDescCreator,
 } from './Store';
 import { useAuth } from './Auth';
 import {
@@ -33,6 +34,7 @@ interface Props extends RouteComponentProps {
   questionsLoading: boolean;
   getAllQuestions: () => Promise<void>;
   getAnsweredQuestions: () => Promise<void>;
+  sortQuestionsByDateDesc: () => Promise<void>;
 }
 
 export const HomePage: FC<Props> = ({
@@ -42,6 +44,7 @@ export const HomePage: FC<Props> = ({
   getUnansweredQuestions,
   getAllQuestions,
   getAnsweredQuestions,
+  sortQuestionsByDateDesc,
 }) => {
   const [filterQuestionsMode, setFilterQuestionsMode] = useState('Unanswered');
   const [sortingQuestionsMode, setSortingQuestionsMode] = useState<
@@ -52,28 +55,33 @@ export const HomePage: FC<Props> = ({
     if (questions == null || filterQuestionsMode === 'Unanswered') {
       getUnansweredQuestions();
     }
+    if (sortingQuestionsMode === 'DESC') {
+      sortQuestionsByDateDesc();
+    }
+
     if (filterQuestionsMode === 'Answered') {
       getAnsweredQuestions();
     }
     if (filterQuestionsMode === 'All') {
       getAllQuestions();
     }
-  }, [filterQuestionsMode]);
+  }, [filterQuestionsMode, sortingQuestionsMode]);
 
   const handleAskQuestionClick = () => {
     history.push('/ask');
   };
   const handleClickOnSortingByDescTimeBtn = () => {
-    questions?.sort(function (a, b) {
-      if (a.title > b.title) {
-        return 1;
-      }
-      if (a.title < b.title) {
-        return -1;
-      }
-      // a должно быть равным b
-      return 0;
-    });
+    setFilterQuestionsMode('DESC');
+    // questions?.sort(function (a, b) {
+    //   if (a.title > b.title) {
+    //     return 1;
+    //   }
+    //   if (a.title < b.title) {
+    //     return -1;
+    //   }
+    //   // a должно быть равным b
+    //   return 0;
+    // });
   };
   const handleClickOnSortingByAscTimeBtn = () => {
     questions?.sort(function (a, b) {
@@ -139,7 +147,7 @@ export const HomePage: FC<Props> = ({
               name="FilterQuestions"
               onClick={() => setFilterQuestionsMode('All')}
             />
-            <button onClick={() => handleClickOnSortingByDescTimeBtn()}>
+            <button onClick={() => setSortingQuestionsMode('DESC')}>
               <img src={arrowDown} alt="down arror" width="20" height="20" />
             </button>
             <button onClick={() => handleClickOnSortingByAscTimeBtn()}>
@@ -177,6 +185,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => {
       dispatch(getUnansweredQuestionsActionCreator()),
     getAllQuestions: () => dispatch(getAllQuestionsActionCreator()),
     getAnsweredQuestions: () => dispatch(getAnsweredQuestionsActionCreator()),
+    sortQuestionsByDateDesc: () => dispatch(sortQuestionsByDateDescCreator()),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
