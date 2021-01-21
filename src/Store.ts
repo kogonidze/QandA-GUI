@@ -23,6 +23,7 @@ import { trace } from 'console';
 interface QuestionsState {
   readonly loading: boolean;
   readonly unanswered: QuestionData[] | null;
+  readonly countOfPages: number;
   readonly postedResult?: QuestionData;
 }
 
@@ -33,6 +34,7 @@ export interface AppState {
 const initialQuestionState: QuestionsState = {
   loading: false,
   unanswered: null,
+  countOfPages: 1,
 };
 
 interface GettingUnasnweredQuestionsAction
@@ -69,6 +71,10 @@ export interface GotSortedQuestionsByDateDescAction
 export interface GotSortedQuestionsByDateAscAction
   extends Action<'GotSortedQuestionsByDateAsc'> {}
 
+export interface SetCountOfPagesAction extends Action<'SetCountOfPages'> {
+  countOfPages: number;
+}
+
 export interface PostedQuestionAction extends Action<'PostedQuestion'> {
   result: QuestionData | undefined;
 }
@@ -84,7 +90,8 @@ type QuestionsActions =
   | GotSortedQuestionsByNameAscAction
   | GotSortedQuestionsByDateDescAction
   | GotSortedQuestionsByDateAscAction
-  | PostedQuestionAction;
+  | PostedQuestionAction
+  | SetCountOfPagesAction;
 
 export const getUnansweredQuestionsActionCreator: ActionCreator<
   ThunkAction<Promise<void>, QuestionData[], null, GotUnansweredQuestionsAction>
@@ -195,6 +202,17 @@ export const postQuestionsActionCreator: ActionCreator<
       result,
     };
     dispatch(postedQuestionAction);
+  };
+};
+
+export const setCountOfPagesActionCreator = (countOfPages: number) => {
+  return async (dispatch: Dispatch) => {
+    const setCountOfPagesAction: SetCountOfPagesAction = {
+      type: 'SetCountOfPages',
+      countOfPages,
+    };
+
+    dispatch(setCountOfPagesAction);
   };
 };
 
@@ -350,6 +368,12 @@ const questionsReducer: Reducer<QuestionsState, QuestionsActions> = (
           ? (state.unanswered || []).concat(action.result)
           : state.unanswered,
         postedResult: action.result,
+      };
+    }
+    case 'SetCountOfPages': {
+      return {
+        ...state,
+        countOfPages: action.countOfPages,
       };
     }
     default:
