@@ -401,7 +401,7 @@ const rootReducer = combineReducers<AppState>({
 //   return store;
 // }
 
-export function configureStore() {
+export function configureStore(): Store<AppState> {
   const store = createStore(
     rootReducer,
     compose(

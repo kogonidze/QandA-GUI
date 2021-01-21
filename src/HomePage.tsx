@@ -20,6 +20,7 @@ import {
   sortQuestionsByNameDescCreator,
   sortQuestionsByDateDescCreator,
   sortQuestionsByDateAscCreator,
+  setCountOfPagesActionCreator,
 } from './Store';
 import { useAuth } from './Auth';
 import {
@@ -35,18 +36,21 @@ interface Props extends RouteComponentProps {
   getUnansweredQuestions: () => Promise<void>;
   questions: QuestionData[] | null;
   questionsLoading: boolean;
+  countOfPages: number;
   getAllQuestions: () => Promise<void>;
   getAnsweredQuestions: () => Promise<void>;
   sortQuestionsByNameDesc: () => Promise<void>;
   sortQuestionsByNameAsc: () => Promise<void>;
   sortQuestionsByDateDesc: () => Promise<void>;
   sortQuestionsByDateAsc: () => Promise<void>;
+  setCountOfPagesAction: (countOfPages: number) => Promise<void>;
 }
 
 export const HomePage: FC<Props> = ({
   history,
   questions,
   questionsLoading,
+  countOfPages,
   getUnansweredQuestions,
   getAllQuestions,
   getAnsweredQuestions,
@@ -54,6 +58,7 @@ export const HomePage: FC<Props> = ({
   sortQuestionsByNameAsc,
   sortQuestionsByDateDesc,
   sortQuestionsByDateAsc,
+  setCountOfPagesAction,
 }) => {
   const [filterQuestionsMode, setFilterQuestionsMode] = useState('Unanswered');
   const [sortingQuestionsMode, setSortingQuestionsMode] = useState('DESC');
@@ -80,18 +85,30 @@ export const HomePage: FC<Props> = ({
   const handleAskQuestionClick = () => {
     history.push('/ask');
   };
-  const handleClickOnSortingByDescTimeBtn = () => {
-    setFilterQuestionsMode('DESC');
-    // questions?.sort(function (a, b) {
-    //   if (a.title > b.title) {
-    //     return 1;
-    //   }
-    //   if (a.title < b.title) {
-    //     return -1;
-    //   }
-    //   // a должно быть равным b
-    //   return 0;
-    // });
+  const getCountOfPages = (questionsPerPage: number): number => {
+    if (questions != null) {
+      var questionsCount = questions?.length;
+      return Math.ceil(questionsCount / questionsPerPage);
+    }
+
+    return 0;
+  };
+  const handleSelectOfCountQuestionsPerPage = (
+    e: ChangeEvent<HTMLSelectElement>,
+  ) => {
+    if (e.currentTarget.value === 'Все') {
+      setCountOfPagesAction(1);
+    } else if (e.currentTarget.value === 'По 5') {
+      setCountOfPagesAction(getCountOfPages(5));
+    } else if (e.currentTarget.value === 'По 10') {
+      setCountOfPagesAction(getCountOfPages(10));
+    } else if (e.currentTarget.value === 'По 20') {
+      setCountOfPagesAction(getCountOfPages(20));
+    } else if (e.currentTarget.value === 'По 50') {
+      setCountOfPagesAction(getCountOfPages(50));
+    }
+
+    //setCountOfPagesAction(countOfPages);
   };
   const handleClickOnSortingByAscTimeBtn = () => {
     questions?.sort(function (a, b) {
@@ -169,6 +186,13 @@ export const HomePage: FC<Props> = ({
             <button onClick={() => sortQuestionsByDateAsc()}>
               <img src={arrowUp} alt="down arror" width="20" height="20" />
             </button>
+            <select onChange={handleSelectOfCountQuestionsPerPage}>
+              <option>Все</option>
+              <option>По 5</option>
+              <option>По 10</option>
+              <option>По 20</option>
+              <option>По 50</option>
+            </select>
           </div>
         </div>
         {questionsLoading ? (
@@ -183,6 +207,7 @@ export const HomePage: FC<Props> = ({
         ) : (
           <QuestionList data={questions || []} />
         )}
+        <p>$"{countOfPages}"</p>
       </div>
     </Page>
   );
@@ -205,6 +230,8 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => {
     sortQuestionsByNameAsc: () => dispatch(sortQuestionsByNameAscCreator()),
     sortQuestionsByDateDesc: () => dispatch(sortQuestionsByDateDescCreator()),
     sortQuestionsByDateAsc: () => dispatch(sortQuestionsByDateAscCreator()),
+    setCountOfPagesAction: (countOfPages: number) =>
+      dispatch(setCountOfPagesActionCreator(countOfPages)),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

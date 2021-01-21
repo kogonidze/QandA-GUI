@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
-import { Provider } from 'react-redux';
-import { configureStore } from './Store';
+import { connect, Provider } from 'react-redux';
+import { AppState, configureStore } from './Store';
 //import { Header } from './Header';
 import HomePage from './HomePage';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
@@ -16,6 +16,7 @@ import { QuestionPage } from './QuestionPage';
 import { HeaderWithRouter as Header } from './Header';
 import { AuthProvider } from './Auth';
 import { AuthorizedPage } from './AuthorizedPage';
+import PageNumbers from './PageNumbers';
 
 const AskPage = lazy(() => import('./AskPage'));
 
@@ -76,6 +77,7 @@ const App: React.FC = () => {
               <Route component={NotFoundPage} />
             </Switch>
           </div>
+          <PageNumbers />
         </BrowserRouter>
       </AuthProvider>
     </Provider>
