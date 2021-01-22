@@ -194,39 +194,68 @@ export const HomePage: FC<Props> = ({
             </PrimaryButton>
           )}
         </div>
-        <div>
-          <div>
-            <input
-              type="radio"
-              value="Unanswered"
-              name="FilterQuestions"
-              onClick={() => setFilterQuestionsMode('Unanswered')}
-              defaultChecked
-            />
-            <input
-              type="radio"
-              value="Answered"
-              name="FilterQuestions"
-              onClick={() => setFilterQuestionsMode('Answered')}
-            />
-            <input
-              type="radio"
-              value="All"
-              name="FilterQuestions"
-              onClick={() => setFilterQuestionsMode('All')}
-            />
-            <button onClick={() => sortQuestionsByNameDesc()}>
-              <img src={arrowDown} alt="down arror" width="20" height="20" />
-            </button>
-            <button onClick={() => sortQuestionsByNameAsc()}>
-              <img src={arrowUp} alt="down arror" width="20" height="20" />
-            </button>
-            <button onClick={() => sortQuestionsByDateDesc()}>
-              <img src={arrowDown} alt="down arror" width="20" height="20" />
-            </button>
-            <button onClick={() => sortQuestionsByDateAsc()}>
-              <img src={arrowUp} alt="down arror" width="20" height="20" />
-            </button>
+        <div
+          css={css`
+            margin: 10px auto 0px auto;
+            padding: 0px 0px 0px 0px;
+            max-width: 600px;
+          `}
+        >
+          <div
+            css={css`
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            `}
+          >
+            <label>
+              Un
+              <input
+                type="radio"
+                value="Unanswered"
+                name="FilterQuestions"
+                onClick={() => setFilterQuestionsMode('Unanswered')}
+                defaultChecked
+              />
+            </label>
+            <label>
+              An
+              <input
+                type="radio"
+                value="Answered"
+                name="FilterQuestions"
+                onClick={() => setFilterQuestionsMode('Answered')}
+              />
+            </label>
+            <label>
+              All
+              <input
+                type="radio"
+                value="All"
+                name="FilterQuestions"
+                onClick={() => setFilterQuestionsMode('All')}
+              />
+            </label>
+
+            <label>
+              By Name:{' '}
+              <button onClick={() => sortQuestionsByNameDesc()}>
+                <img src={arrowDown} alt="down arror" width="20" height="20" />
+              </button>
+              <button onClick={() => sortQuestionsByNameAsc()}>
+                <img src={arrowUp} alt="down arror" width="20" height="20" />
+              </button>
+            </label>
+            <label>
+              By Date:{' '}
+              <button onClick={() => sortQuestionsByDateDesc()}>
+                <img src={arrowDown} alt="down arror" width="20" height="20" />
+              </button>
+              <button onClick={() => sortQuestionsByDateAsc()}>
+                <img src={arrowUp} alt="down arror" width="20" height="20" />
+              </button>
+            </label>
+
             <select onChange={handleSelectOfCountQuestionsPerPage}>
               <option>Все</option>
               <option>По 5</option>

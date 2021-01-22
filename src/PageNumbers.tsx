@@ -1,6 +1,9 @@
+/** @jsxRuntime classic */
+/** @jsx jsx */
+import { css, jsx } from '@emotion/react';
 import React, { FC } from 'react';
 import { connect } from 'react-redux';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { Link, NavLink, RouteComponentProps } from 'react-router-dom';
 import { AppState } from './Store';
 
 interface Props {
@@ -15,11 +18,23 @@ export const PageNumbers: FC<Props> = ({ countOfPages }) => {
   }
 
   return (
-    <div>
+    <div
+      css={css`
+        align-items: center;
+      `}
+    >
       {arrayOfPages.map((n) => {
         return (
-          <span>
-            <Link to={`/${n + 1}`}>{n + 1}</Link>{' '}
+          <span
+            key={n}
+            css={css`
+              padding: 5px;
+              margin: 10px;
+            `}
+          >
+            <NavLink activeStyle={{ color: 'red' }} to={`/${n + 1}`}>
+              {n + 1}
+            </NavLink>{' '}
           </span>
         );
       })}
