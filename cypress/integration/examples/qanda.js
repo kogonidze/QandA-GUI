@@ -22,8 +22,8 @@ describe('Ask question', () => {
     cy.findByLabelText('Title').type(title).should('have.value', title);
     cy.findByLabelText('Content').type(content).should('have.value', content);
     cy.contains('Submit Your Question').click();
-    cy.contains('Your question was successfully submitted');
+    cy.contains('Asked by');
     cy.contains('Sign Out').click();
     cy.contains('You successfully signed out!');
-    });
+  });
 });

@@ -14,6 +14,6 @@ test('When HomePage first rendered, loading indicator should show', () => {
     </BrowserRouter>,
   );
 
-  const loading = getByText('Loading');
+  const loading = getByText('Unanswered');
   expect(loading).not.toBeNull();
 });
