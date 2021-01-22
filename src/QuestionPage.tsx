@@ -14,15 +14,13 @@ import {
   HubConnectionBuilder,
   HubConnectionState,
   HubConnection,
-  HttpTransportType,
 } from '@aspnet/signalr';
 
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { gray2, gray3, gray6 } from './Styles';
+import { gray3, gray6 } from './Styles';
 import { AnswerList } from './AnswerList';
-import { connect } from 'react-redux';
 import { useAuth } from './Auth';
 
 interface RouteParams {
@@ -32,7 +30,6 @@ interface RouteParams {
 export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
   match,
   history,
-  location,
 }) => {
   const [question, setQuestion] = useState<QuestionData | null>(null);
   const [success, setSuccess] = useState<boolean | null>(null);
@@ -124,18 +121,15 @@ export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
     });
 
     if (result !== undefined) {
-      let a = location.pathname;
-
       setSuccess(true);
-      history.push('/');
-      history.push(a);
     }
 
     return { success: result ? true : false };
   };
 
   if (success === true) {
-    history.push(location.pathname);
+    // eslint-disable-next-line no-restricted-globals
+    location.reload();
     setSuccess(null);
   }
 

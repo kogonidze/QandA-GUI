@@ -3,7 +3,7 @@
 import { css, jsx } from '@emotion/react';
 import React, { FC } from 'react';
 import { connect } from 'react-redux';
-import { Link, NavLink, RouteComponentProps } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { AppState } from './Store';
 
 interface Props {

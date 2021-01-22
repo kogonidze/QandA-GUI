@@ -10,7 +10,7 @@ import { PrimaryButton } from './Styles';
 import { QuestionList } from './QuestionList';
 import { Page } from './Page';
 import { PageTitle } from './PageTitle';
-import { match, RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import {
   AppState,
   getUnansweredQuestionsActionCreator,
@@ -23,12 +23,7 @@ import {
   setCountOfPagesActionCreator,
 } from './Store';
 import { useAuth } from './Auth';
-import {
-  getUnansweredQuestions,
-  getAnsweredQuestions,
-  getAllQuestions,
-  QuestionData,
-} from './QuestionsData';
+import { QuestionData } from './QuestionsData';
 import arrowDown from './arrowDown.png';
 import arrowUp from './arrowUp.png';
 import PageNumbers from './PageNumbers';
@@ -67,7 +62,6 @@ export const HomePage: FC<Props> = ({
   setCountOfPagesAction,
 }) => {
   const [filterQuestionsMode, setFilterQuestionsMode] = useState('Unanswered');
-  const [sortingQuestionsMode, setSortingQuestionsMode] = useState('DESC');
   const [batchOfQuestionsPerPage, setBatchOfQuestionsPerPage] = useState(
     Infinity,
   );
@@ -122,16 +116,8 @@ export const HomePage: FC<Props> = ({
       setCountOfPagesAction(getCountOfPages(50));
       history.push('/1');
     }
-
-    //setCountOfPagesAction(countOfPages);
   };
-  const handleClickOnSortingByAscTimeBtn = () => {
-    questions?.sort(function (a, b) {
-      return b.created.getDate() - a.created.getDate();
-    });
 
-    return questions;
-  };
   const { isAuthenticated } = useAuth();
 
   const getPortionOfQuestions = (
@@ -141,7 +127,6 @@ export const HomePage: FC<Props> = ({
 
     if (page !== undefined) {
       pageNumber = parseInt(page, 10);
-      let first = 0;
 
       if (!isNaN(pageNumber)) {
         if (pageNumber <= countOfPages && pageNumber >= 0) {
@@ -149,7 +134,7 @@ export const HomePage: FC<Props> = ({
             (pageNumber - 1) * batchOfQuestionsPerPage,
             pageNumber * batchOfQuestionsPerPage,
           );
-          if (portionOfQuestions != undefined) {
+          if (portionOfQuestions !== undefined) {
             return portionOfQuestions;
           }
 

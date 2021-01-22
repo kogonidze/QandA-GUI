@@ -18,7 +18,6 @@ import {
   compose,
 } from 'redux';
 import thunk, { ThunkAction } from 'redux-thunk';
-import { trace } from 'console';
 
 interface QuestionsState {
   readonly loading: boolean;
@@ -388,28 +387,8 @@ const rootReducer = combineReducers<AppState>({
   questions: questionsReducer,
 });
 
-// export function configureStore(): Store<AppState> {
-//   const store = createStore(
-//     rootReducer,
-//     undefined,
-//     compose(
-//       applyMiddleware(thunk),
-//       (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
-//         (window as any).__REDUX_DEVTOOLS_EXTENSION__({ trace: true }),
-//     ),
-//   );
-//   return store;
-// }
-
 export function configureStore(): Store<AppState> {
-  const store = createStore(
-    rootReducer,
-    compose(
-      applyMiddleware(thunk),
-      // window.__REDUX_DEVTOOLS_EXTENSION__ &&
-      //   window.__REDUX_DEVTOOLS_EXTENSION__(),
-    ),
-  );
+  const store = createStore(rootReducer, compose(applyMiddleware(thunk)));
 
   return store;
 }
