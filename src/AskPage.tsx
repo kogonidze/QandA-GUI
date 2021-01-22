@@ -11,8 +11,9 @@ import {
   clearPostedQuestionActionCreator,
 } from './Store';
 import { AnyAction } from 'redux';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 
-interface Props {
+interface Props extends RouteComponentProps {
   postQuestion: (question: PostQuestionData) => Promise<void>;
   postedQuestionResult?: QuestionData;
   clearPostedQuestion: () => void;
@@ -22,6 +23,7 @@ const AskPage: FC<Props> = ({
   postQuestion,
   postedQuestionResult,
   clearPostedQuestion,
+  history,
 }) => {
   useEffect(() => {
     return function cleanUp() {
@@ -41,6 +43,7 @@ const AskPage: FC<Props> = ({
   let submitResult: SubmitResult | undefined;
   if (postedQuestionResult) {
     submitResult = { success: postedQuestionResult !== undefined };
+    history.push(`/questions/${postedQuestionResult.questionId}`);
   }
 
   return (
@@ -76,4 +79,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AskPage);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withRouter(AskPage));
