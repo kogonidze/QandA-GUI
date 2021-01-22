@@ -74,10 +74,10 @@ const App: React.FC = () => {
                 render={() => <SignOutPage action="signout-callback" />}
               />
               <Route path="/questions/:questionId" component={QuestionPage} />
+              <Route path="/:pageNumber" component={HomePage} />
               <Route component={NotFoundPage} />
             </Switch>
           </div>
-          <PageNumbers />
         </BrowserRouter>
       </AuthProvider>
     </Provider>

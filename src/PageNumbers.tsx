@@ -8,7 +8,23 @@ interface Props {
 }
 
 export const PageNumbers: FC<Props> = ({ countOfPages }) => {
-  return <Link to="/1">ЧИСЛО СТРАНИЦ: {countOfPages}</Link>;
+  var arrayOfPages = new Array(countOfPages);
+
+  for (let i = 0; i < arrayOfPages.length; i++) {
+    arrayOfPages[i] = i;
+  }
+
+  return (
+    <div>
+      {arrayOfPages.map((n) => {
+        return (
+          <span>
+            <Link to={`/${n + 1}`}>{n + 1}</Link>{' '}
+          </span>
+        );
+      })}
+    </div>
+  );
 };
 const mapStateToProps = (store: AppState) => {
   return {

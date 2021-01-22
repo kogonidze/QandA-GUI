@@ -10,7 +10,7 @@ import { PrimaryButton } from './Styles';
 import { QuestionList } from './QuestionList';
 import { Page } from './Page';
 import { PageTitle } from './PageTitle';
-import { RouteComponentProps } from 'react-router-dom';
+import { match, RouteComponentProps } from 'react-router-dom';
 import {
   AppState,
   getUnansweredQuestionsActionCreator,
@@ -31,8 +31,13 @@ import {
 } from './QuestionsData';
 import arrowDown from './arrowDown.png';
 import arrowUp from './arrowUp.png';
+import PageNumbers from './PageNumbers';
 
-interface Props extends RouteComponentProps {
+interface RouteParams {
+  pageNumber?: string;
+}
+
+interface Props extends RouteComponentProps<RouteParams> {
   getUnansweredQuestions: () => Promise<void>;
   questions: QuestionData[] | null;
   questionsLoading: boolean;
@@ -50,6 +55,7 @@ export const HomePage: FC<Props> = ({
   history,
   questions,
   questionsLoading,
+  match,
   countOfPages,
   getUnansweredQuestions,
   getAllQuestions,
@@ -62,7 +68,9 @@ export const HomePage: FC<Props> = ({
 }) => {
   const [filterQuestionsMode, setFilterQuestionsMode] = useState('Unanswered');
   const [sortingQuestionsMode, setSortingQuestionsMode] = useState('DESC');
-
+  const [batchOfQuestionsPerPage, setBatchOfQuestionsPerPage] = useState(
+    Infinity,
+  );
   useEffect(() => {
     if (questions == null && filterQuestionsMode === 'Unanswered') {
       getUnansweredQuestions();
@@ -77,9 +85,6 @@ export const HomePage: FC<Props> = ({
     if (filterQuestionsMode === 'All') {
       getAllQuestions();
     }
-    // if (filterQuestionsMode === 'DESC') {
-    //   sortQuestionsByDateDesc();
-    // }
   }, [filterQuestionsMode]);
 
   const handleAskQuestionClick = () => {
@@ -97,15 +102,25 @@ export const HomePage: FC<Props> = ({
     e: ChangeEvent<HTMLSelectElement>,
   ) => {
     if (e.currentTarget.value === 'Все') {
+      setBatchOfQuestionsPerPage(Infinity);
       setCountOfPagesAction(1);
+      history.push('/1');
     } else if (e.currentTarget.value === 'По 5') {
+      setBatchOfQuestionsPerPage(5);
       setCountOfPagesAction(getCountOfPages(5));
+      history.push('/1');
     } else if (e.currentTarget.value === 'По 10') {
+      setBatchOfQuestionsPerPage(10);
       setCountOfPagesAction(getCountOfPages(10));
+      history.push('/1');
     } else if (e.currentTarget.value === 'По 20') {
+      setBatchOfQuestionsPerPage(20);
       setCountOfPagesAction(getCountOfPages(20));
+      history.push('/1');
     } else if (e.currentTarget.value === 'По 50') {
+      setBatchOfQuestionsPerPage(50);
       setCountOfPagesAction(getCountOfPages(50));
+      history.push('/1');
     }
 
     //setCountOfPagesAction(countOfPages);
@@ -119,6 +134,32 @@ export const HomePage: FC<Props> = ({
   };
   const { isAuthenticated } = useAuth();
 
+  const getPortionOfQuestions = (
+    page: string | undefined,
+  ): QuestionData[] | null => {
+    let pageNumber: number;
+
+    if (page !== undefined) {
+      pageNumber = parseInt(page, 10);
+      let first = 0;
+
+      if (!isNaN(pageNumber)) {
+        if (pageNumber <= countOfPages && pageNumber >= 0) {
+          var portionOfQuestions = questions?.slice(
+            (pageNumber - 1) * batchOfQuestionsPerPage,
+            pageNumber * batchOfQuestionsPerPage,
+          );
+          if (portionOfQuestions != undefined) {
+            return portionOfQuestions;
+          }
+
+          return null;
+        }
+      }
+    }
+
+    return null;
+  };
   return (
     <Page>
       <div
@@ -205,9 +246,19 @@ export const HomePage: FC<Props> = ({
             Loading
           </div>
         ) : (
-          <QuestionList data={questions || []} />
+          <div>
+            {batchOfQuestionsPerPage === Infinity ? (
+              <QuestionList data={questions || []} />
+            ) : match.params.pageNumber === undefined ? (
+              <QuestionList data={getPortionOfQuestions('1') || []} />
+            ) : (
+              <QuestionList
+                data={getPortionOfQuestions(match.params.pageNumber) || []}
+              />
+            )}
+            <PageNumbers />
+          </div>
         )}
-        <p>$"{countOfPages}"</p>
       </div>
     </Page>
   );
@@ -217,6 +268,7 @@ const mapStateToProps = (store: AppState) => {
   return {
     questions: store.questions.unanswered,
     questionsLoading: store.questions.loading,
+    countOfPages: store.questions.countOfPages,
   };
 };
 
