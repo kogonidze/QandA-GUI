@@ -1,7 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
 import { configureStore } from './Store';
-//import { Header } from './Header';
 import HomePage from './HomePage';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import { SearchPage } from './SearchPage';
@@ -73,6 +72,7 @@ const App: React.FC = () => {
                 render={() => <SignOutPage action="signout-callback" />}
               />
               <Route path="/questions/:questionId" component={QuestionPage} />
+              <Route path="/:pageNumber" component={HomePage} />
               <Route component={NotFoundPage} />
             </Switch>
           </div>

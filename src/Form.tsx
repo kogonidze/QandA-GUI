@@ -3,7 +3,6 @@ import { PrimaryButton, gray5, gray6 } from './Styles';
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { StringifyOptions } from 'querystring';
 
 export interface Values {
   [key: string]: any;
@@ -113,7 +112,6 @@ export const Form: FC<Props> = ({
       setSubmitError(false);
       const result = await onSubmit(values);
 
-      // The result may be passed through as a prop
       if (result === undefined) {
         return;
       }

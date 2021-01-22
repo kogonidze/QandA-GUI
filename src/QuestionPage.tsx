@@ -14,15 +14,13 @@ import {
   HubConnectionBuilder,
   HubConnectionState,
   HubConnection,
-  HttpTransportType,
 } from '@aspnet/signalr';
 
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { gray2, gray3, gray6 } from './Styles';
+import { gray3, gray6 } from './Styles';
 import { AnswerList } from './AnswerList';
-import { connect } from 'react-redux';
 import { useAuth } from './Auth';
 
 interface RouteParams {
@@ -31,12 +29,14 @@ interface RouteParams {
 
 export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
   match,
+  history,
 }) => {
   const [question, setQuestion] = useState<QuestionData | null>(null);
+  const [success, setSuccess] = useState<boolean | null>(null);
 
   const setUpSignalRConnection = async (questionId: number) => {
     const connection = new HubConnectionBuilder()
-      .withUrl('http://localhost:44381/questionshub')
+      .withUrl('https://localhost:44381/questionshub')
       .withAutomaticReconnect()
       .build();
 
@@ -63,6 +63,7 @@ export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
 
     return connection;
   };
+
   const cleanUpSignalRConnection = async (
     questionId: number,
     connection: HubConnection,
@@ -119,8 +120,19 @@ export const QuestionPage: FC<RouteComponentProps<RouteParams>> = ({
       created: new Date(),
     });
 
+    if (result !== undefined) {
+      setSuccess(true);
+    }
+
     return { success: result ? true : false };
   };
+
+  if (success === true) {
+    // eslint-disable-next-line no-restricted-globals
+    location.reload();
+    setSuccess(null);
+  }
+
   const { isAuthenticated } = useAuth();
   return (
     <Page>
